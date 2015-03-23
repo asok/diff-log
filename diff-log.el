@@ -20,6 +20,10 @@
 
 ;;; Commentary:
 ;;
+;; This package defines diff-log-mode. Once activated it will store results of
+;; running diff against the buffer and its version on the disk.
+;; The diffs can be browsed and reviewed later in similar fashion as in magit-status.
+;;
 ;;; Code:
 
 (require 'diff)
@@ -83,7 +87,7 @@
   (get-buffer diff-log-buffer-name))
 
 (defun diff-log--list-entries ()
-  "WIP."
+  "Insert content of `diff-log--diffs' into the current buffer."
   (save-excursion
     (goto-char 0)
     (maphash
@@ -148,7 +152,7 @@
                                      new))))
 
 (defun diff-log--timestamped-buffer-name (time)
-  "TIME WIP."
+  "Return a buffer name with TIME in it."
   (concat (buffer-name) " @ " time))
 
 
@@ -184,12 +188,12 @@
     (goto-char point)))
 
 (defun diff-log-list-next ()
-  "WIP."
+  "Move to the next line."
   (interactive)
   (next-line))
 
 (defun diff-log-list-previous ()
-  "WIP."
+  "Move to the previous line."
   (interactive)
   (previous-line))
 
@@ -248,19 +252,19 @@ Where start & end are start and end point of a section."
       (diff-log--search-forward diff-log--time-header-begin-re))))))
 
 (defun diff-log--at-file-header? ()
-  "WIP."
+  "Return t if point is set at the file header."
   (string-match-p diff-log--file-header-re (diff-log--current-line)))
 
 (defun diff-log--at-time-header-end? ()
-  "WIP."
+  "Return t if point is set at the second line of time header."
   (string-match-p diff-log--time-header-end-re (diff-log--current-line)))
 
 (defun diff-log--at-time-header-begin? ()
-  "WIP."
+  "Return t if point is set at the first line of time header."
   (string-match-p diff-log--time-header-begin-re (diff-log--current-line)))
 
 (defun diff-log--at-hunk-header? ()
-  "WIP."
+  "Return t if point is set at a hunk header."
   (string-match-p diff-log--hunk-header-re (diff-log--current-line)))
 
 (defun diff-log--current-line ()
@@ -269,7 +273,7 @@ Where start & end are start and end point of a section."
    (line-beginning-position) (line-end-position)))
 
 (defun diff-log--search-backward (re)
-  "RE WIP."
+  "Return point where the RE was found."
   (save-excursion
     (re-search-backward re nil t)))
 
@@ -283,7 +287,7 @@ If the match was not found return 1 less than `point-max'."
       (- (point-max) 1))))
 
 (defun diff-log-toggle-section ()
-  "WIP."
+  "Toggle visibility of the current section."
   (interactive)
   (let ((inhibit-read-only t)
         (start-end (diff-log--section-start-end)))
