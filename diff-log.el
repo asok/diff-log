@@ -275,7 +275,7 @@ Where start & end are start and end point of a section."
 
 (defun diff-log--search-forward (re)
   "Return point at the start of the line for which the match against RE was found.
-If the match was not found return `point-max'."
+If the match was not found return 1 less than `point-max'."
   (save-excursion
     (forward-char) ;; make sure that the first char in the line is skipped
     (if (re-search-forward re nil t)
