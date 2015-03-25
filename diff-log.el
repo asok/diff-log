@@ -187,25 +187,31 @@
     (diff-log--list-entries)
     (goto-char point)))
 
-(defun diff-log-list-next ()
+(defun diff-log-next ()
   "Move to the next line."
   (interactive)
   (next-line))
 
-(defun diff-log-list-previous ()
+(defun diff-log-previous ()
   "Move to the previous line."
   (interactive)
   (previous-line))
 
-(defun diff-log-goto-next-section ()
-  "Move point to the next sibling section."
+(defun diff-log-next-section ()
+  "Move point to the next section."
   (interactive)
-  (goto-char (next-single-property-change (point) :section)))
+  (goto-char (min
+              (diff-log--search-forward diff-log--hunk-header-re)
+              (diff-log--search-forward diff-log--time-header-begin-re)
+              (diff-log--search-forward diff-log--file-header-re))))
 
-(defun diff-log-goto-previous-section ()
-  "Move point to the previous sibling section."
+(defun diff-log-previous-section ()
+  "Move point to the previous section."
   (interactive)
-  (goto-char (previous-single-property-change (point) :section)))
+  (goto-char (max
+              (diff-log--search-backward diff-log--hunk-header-re)
+              (diff-log--search-backward diff-log--time-header-begin-re)
+              (diff-log--search-backward diff-log--file-header-re))))
 
 (defconst diff-log--time-header-begin-suffix-re
   ".+ @ [A-Za-z]\\{3\\} [A-Za-z]\\{3\\} [0-9]\\{1,2\\} [0-9]\\{1,2\\}:[0-9]\\{1,2\\}:[0-9]\\{1,2\\} [0-9]\\{4\\}")
@@ -275,7 +281,7 @@ Where start & end are start and end point of a section."
 (defun diff-log--search-backward (re)
   "Return point where the RE was found."
   (save-excursion
-    (re-search-backward re nil t)))
+    (or (re-search-backward re nil t) 0)))
 
 (defun diff-log--search-forward (re)
   "Return point at the start of the line for which the match against RE was found.
@@ -336,13 +342,12 @@ HEADER-START is the point where the header for the section starts."
         diff-log--last-modified-at (current-time-string))
   (set (make-local-variable 'hl-line-range-function) 'diff-log--section-start-end))
 
-(define-key diff-log-list-mode-map (kbd "n")     #'diff-log-list-next)
-(define-key diff-log-list-mode-map (kbd "p")     #'diff-log-list-previous)
-(define-key diff-log-list-mode-map (kbd "M-n")   #'diff-log-goto-next-section)
-(define-key diff-log-list-mode-map (kbd "M-p")   #'diff-log-goto-previous-section)
+(define-key diff-log-list-mode-map (kbd "n")     #'diff-log-next)
+(define-key diff-log-list-mode-map (kbd "p")     #'diff-log-previous)
+(define-key diff-log-list-mode-map (kbd "M-n")   #'diff-log-next-section)
+(define-key diff-log-list-mode-map (kbd "M-p")   #'diff-log-previous-section)
 (define-key diff-log-list-mode-map (kbd "M-<")   #'beginning-of-buffer)
 (define-key diff-log-list-mode-map (kbd "M->")   #'end-of-buffer)
-(define-key diff-log-list-mode-map (kbd "M-p")   #'diff-log-goto-previous-section)
 (define-key diff-log-list-mode-map (kbd "g")     #'diff-log-list-refresh)
 (define-key diff-log-list-mode-map (kbd "<tab>") #'diff-log-toggle-section)
 
