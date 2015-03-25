@@ -303,6 +303,20 @@ If the match was not found return 1 less than `point-max'."
       (put-text-property
        (+ (line-end-position) 1) (cdr start-end) 'invisible t))))
 
+(defun diff-log-visit ()
+  "Go to corresponding file."
+  (interactive)
+  (find-file
+   (save-excursion
+     (while (not (diff-log--at-file-header?))
+       (diff-log-previous-section))
+     (let ((line (buffer-substring-no-properties
+                  (line-beginning-position)
+                  (line-end-position))))
+       (string-match "^Diff log for \\(.+\\):$" line)
+       (match-string 1 line)))))
+
+
 (defun diff-log--section-content-start (header-start)
   "Return point of the first character of the content of a section.
 
@@ -350,6 +364,7 @@ HEADER-START is the point where the header for the section starts."
 (define-key diff-log-list-mode-map (kbd "M->")   #'end-of-buffer)
 (define-key diff-log-list-mode-map (kbd "g")     #'diff-log-list-refresh)
 (define-key diff-log-list-mode-map (kbd "<tab>") #'diff-log-toggle-section)
+(define-key diff-log-list-mode-map (kbd "RET") #'diff-log-visit)
 
 ;;;###autoload
 (defun diff-log ()
